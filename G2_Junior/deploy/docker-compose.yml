@@ -1,0 +1,184 @@
+version: '3'
+# ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
+x-environment: &airflow_environment
+  - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+  - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+  - AIRFLOW__CORE__LOAD_EXAMPLES=False
+  - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@pg-airflow:5432/airflow
+  - AIRFLOW__CORE__STORE_DAG_CODE=True
+  - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
+  - AIRFLOW__CORE__TEST_CONNECTION=Enabled
+  - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=5
+  - AIRFLOW__WEBSERVER__AUTH_BACKEND=airflow.contrib.auth.backends.password_auth
+  - AIRFLOW__WEBSERVER__AUTHENTICATE=True
+  - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+  - AIRFLOW__WEBSERVER__LOGIN=airflow
+  - AIRFLOW__WEBSERVER__PASSWORD=airflow
+# ====================================== /AIRFLOW ENVIRONMENT VARIABLES ======================================
+services:
+  pg-airflow:
+    image: postgres:15-alpine
+    container_name: pg-airflow
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    networks:
+      - network-af
+
+  af-init:
+    build:
+      context: ../docker/airflow
+      dockerfile: Dockerfile
+    container_name: af-init
+    depends_on:
+      - pg-airflow
+    environment: *airflow_environment
+    entrypoint: /bin/bash
+    command: -c 'airflow db migrate && airflow users create --username airflow --password airflow --firstname airflow --lastname airflow --role Admin --email airflow@example.org'
+    networks:
+      - network-af
+  
+  af-webserver:
+    build:
+      context: ../docker/airflow
+      dockerfile: Dockerfile
+    restart: always
+    container_name: af-webserver
+    depends_on:
+      - pg-airflow
+    ports:
+      - "8080:8080"
+    volumes:
+      - "../airflow_data/logs:/opt/airflow/logs:rw"
+    environment: *airflow_environment
+    command: "webserver -p 8080"
+    networks:
+      - network-af
+      - network-1
+      - network-2
+      - network-dwh
+
+  af-triggerer:
+    build:
+      context: ../docker/airflow
+      dockerfile: Dockerfile
+    restart: always
+    container_name: af-triggerer
+    depends_on:
+      - pg-airflow
+    volumes:
+      - "../airflow_data/dags:/opt/airflow/dags:rw"
+      - "../airflow_data/logs:/opt/airflow/logs:rw"
+      - "../airflow_data/plugins:/opt/airflow/plugins:rw"
+    environment: *airflow_environment
+    command: triggerer
+    networks:
+      - network-af
+
+  af-scheduler:
+    build:
+      context: ../docker/airflow
+      dockerfile: Dockerfile
+    restart: always
+    container_name: af-scheduler
+    depends_on:
+      - pg-airflow
+    volumes:
+      - "../airflow_data/dags:/opt/airflow/dags:rw"
+      - "../airflow_data/logs:/opt/airflow/logs:rw"
+      - "../airflow_data/plugins:/opt/airflow/plugins:rw"
+    environment: *airflow_environment
+    command: scheduler
+    networks:
+      - network-af
+      - network-dwh
+      - network-1
+      - network-2
+
+  pg-dwh:
+    image: postgres:15-alpine
+    env_file:
+      - env/dwh.env
+    container_name: pg-dwh
+    volumes:
+      - "../dwh_data:/var/lib/postgresql/data:rw"
+    ports:
+      - 5435:5432
+    networks:
+      - network-dwh
+
+  pgadmin:
+    image: dpage/pgadmin4:8.2
+    env_file:
+      - env/dwh.env
+    container_name: pgadmin
+    volumes:
+      - "../pgadmin_data:/var/lib/pgadmin:rw"
+    ports:
+      - "80:80"
+    networks:
+      - network-af
+      - network-dwh
+      - network-1
+      - network-2
+
+  pg-shop-1:
+    image: postgres:15-alpine
+    container_name: pg-shop-1
+    env_file:
+      - ./env/shop-1.env
+    ports:
+      - 5433:5432
+    networks:
+      - network-1
+
+  shop-1:
+    build:
+      context: ../docker/generator
+      dockerfile: Dockerfile
+    container_name: shop-1
+    env_file:
+      - ./env/shop-1.env
+    volumes:
+      - "../generator_app_data/logs/shop-1:/app/logs:rw"
+    networks:
+      - network-1
+    depends_on:
+      - pg-shop-1
+      
+  pg-shop-2:
+    image: postgres:15-alpine
+    container_name: pg-shop-2
+    env_file:
+      - ./env/shop-2.env
+    ports:
+      - 5434:5432
+    networks:
+      - network-2
+
+  shop-2:
+    build:
+      context: ../docker/generator
+      dockerfile: Dockerfile
+    container_name: shop-2
+    env_file:
+      - ./env/shop-2.env
+    volumes:
+      - "../generator_app_data/logs/shop-2:/app/logs:rw"
+    networks:
+      - network-2
+    depends_on:
+      - pg-shop-2
+
+networks: 
+  network-1:  
+    name: network-1
+  network-2:  
+    name: network-2
+  network-dwh:
+    name: network-dwh
+  network-af:
+    name: network-af

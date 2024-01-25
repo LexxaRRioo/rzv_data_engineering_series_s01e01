@@ -1,0 +1,48 @@
+{
+    "tech_fields": {
+        "created_at": "timestamp"
+    },
+    "tables": {
+        "customers": {
+            "columns": {
+                "full_name": {"type": "varchar", "faker": "name"},
+                "home_address": {"type": "varchar", "faker": "address"},
+                "phone_number": {"type": "varchar", "faker": "phone_number"},
+                "passport": {"type": "varchar", "faker": "passport_number"},
+                "birth_date": {"type": "date", "faker": "passport_dob"},
+                "email": {"type": "varchar", "faker": "safe_email"},
+                "credit_card": {"type": "bigint", "faker": "credit_card_number"},
+                "credit_card_expire": {"type": "varchar", "faker": "credit_card_expire"}
+            },
+            "params": {
+                "insert_rows_per_tick": 10,
+                "update_rows_per_tick": 2                
+        }
+    },
+        "orders": {
+            "columns": {
+                "customer_id": {"type": "int", "faker": "random_int", "params": {"min": 1, "max": 99}},
+                "product_id": {"type": "int", "faker": "random_int", "params": {"min": 1, "max": 99}},
+                "order_status": {"type": "varchar", "faker": "random_element", "params": {"elements": ["shipped","paid","delivered","closed","opened"]}},
+                "order_dttm": {"type": "timestamp", "faker": "past_datetime"},
+                "quantity": {"type": "float", "faker": "random_int", "params": {"min": 1, "max": 100}}
+            },
+            "params": {
+                "insert_rows_per_tick": 100,
+                "update_rows_per_tick": 7
+            }
+    },
+        "products": {
+            "columns": {
+                "ssn": {"type": "varchar", "faker": "ssn"},
+                "name": {"type": "varchar", "faker": "random_element", "params": {"elements": ["Aboujahl Watermelon","Acai","Ackee","Akebia","Araza","Atemoya","Banana passion fruit","Barrel Cactus","Black Sapote","Breadfruit","Buddha’s Hand","Cape Gooseberry","Cempedak","Chayote","Cheese Fruit","Cherimoya","Crowberry","Cucamelon","Cupuacu","Dragon Fruit","Durian","Egg Fruit","Feijoa","Finger Lime","Fruit Salad Plant","Guava","Hala Fruit","Honeyberry","Ice Cream Bean","Imbe","Indian Gooseberry","Indian Olive","Indian Plum","Jabuticaba","Jackfruit","Java Plum","Jenipapo","Jocote","Jujube","Kiwano","Kiwifruit","Kumquat","Langsat","Long Mulberry","Longan","Lulo","Lychee","Mamey","Mangosteen","Medlar","Myrobalan","Nipa Palm","Pandanus","Papaya","Passion Fruit","Persimmon","Plantain","Platonia","Pomelo","Prickly Pear","Rambutan","Red Banana","Rose Apple","Safou","Saguaro","Salak","Santol","Sapodilla","Star Fruit","Strawberry Tree","Sugar Apple","Surinam Cherry","Tamarillo","Tamarind","Ugli","White Jamun","Wood Apple"]}},
+                "price": {"type": "int", "faker": "random_int", "params": {"min": 9, "max": 999}},
+                "currency": {"type": "varchar", "faker": "currency_code"}
+            },
+            "params": {
+                "insert_rows_per_tick": 10,
+                "update_rows_per_tick": 3
+        }
+    }
+    }
+}

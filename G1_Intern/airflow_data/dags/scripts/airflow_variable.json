@@ -1,0 +1,49 @@
+{
+    "load_data_conf": {
+        "tables": {
+            "customers": {
+                "columns": {
+                    "customer_id": "int",
+                    "full_name": "varchar",
+                    "home_address": "varchar",
+                    "phone_number": "varchar",
+                    "passport": "varchar",
+                    "birth_date": "date",
+                    "email": "varchar",
+                    "credit_card": "bigint",
+                    "credit_card_expire": "varchar",
+                    "created_at": "timestamp"
+                },
+                "load_params": {
+                    "type": "increment",
+                    "increment_col": "created_at",
+                    "scd2": true,
+                    "scd2_columns": {
+                        "eff_from_dttm": "timestamp",
+                        "eff_to_dttm": "timestamp"
+                    }
+                },
+                "tech_columns": {
+                    "src_id": "varchar",
+                    "dag_run_id": "varchar",
+                    "ingested_at": "timestamp"
+                },
+                "pk_cols_without_scd2": [
+                    "customer_id",
+                    "src_id"
+                ],
+                "tech_load_column": {
+                    "ingested_at": "timestamp"
+                }
+            }
+        },
+        "source_conn_ids": {
+            "shop_1_conn": {
+                "tables": [
+                    "customers"
+                ],
+                "city_name": "New-York"
+            }
+        }
+    }
+}
