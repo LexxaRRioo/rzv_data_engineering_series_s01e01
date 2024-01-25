@@ -130,7 +130,7 @@ If this repository helped you and you liked it, give it a ⭐ and subscribe to t
 * [Mentor](https://razvodov-mentorship-de.notion.site/About-me-and-mentorship_ru-06510bfd4bbd4dcba93c351df0ff4a0e)
 * [Telegram channel author about Data Engineering](https://t.me/rzv_de)
 * [LinkedIn author about Data Engineering](https://www.linkedin.com/in/razvodov-alexey/)
-* [CV](https://razvodov-mentorship-de.notion.site/About-me-and-mentorship_ru-06510bfd4bbd4dcba93c351df0ff4a0e)
+* [CV](https://docs.google.com/document/d/1tYi0s7yNsGl_Xts5CrHDegLvAtlHtz7jPSp074MfCyI/edit?usp=sharing)
 * [Contact me](https://t.me/razvodov_de_mentor)
 
 <img src="images/photo.jpg" alt="Personal photo" width="300" style="display: block; margin: auto"/>
