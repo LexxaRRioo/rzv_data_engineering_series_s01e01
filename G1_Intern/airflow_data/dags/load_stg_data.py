@@ -21,7 +21,7 @@ from utils import CONFIG, TARGET_CONN_ID, TARGET_HOOK, \
 default_args = {
     "owner": "rzv_de",
     "depends_on_past": False,
-    "start_date": datetime(2024, 1, 19, 12, 0, 0, tzinfo=pendulum.timezone("UTC")),
+    "start_date": datetime(2024, 1, 29, 12, 0, 0, tzinfo=pendulum.timezone("UTC")),
     "retries": 3,
     "retry_delay": timedelta(seconds=10),
     "catchup": False,
