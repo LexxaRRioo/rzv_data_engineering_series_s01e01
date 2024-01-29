@@ -12,3 +12,4 @@
 # generator
 **/generator_app_data/logs/*
 !.gitkeep
+.DS_Store
