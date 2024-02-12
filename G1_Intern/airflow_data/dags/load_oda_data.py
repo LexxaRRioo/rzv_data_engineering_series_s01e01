@@ -142,8 +142,6 @@ and {scd2_columns[1][0]} = '9999-12-31 23:59:59';"""
             df_u_dataset_hashed = hash_nonpk_cols_sha1_df(df_u_dataset, table)
             
             pk_cols_without_scd2 = CONFIG["tables"][table]["pk_cols_without_scd2"]
-            df_u_target_hashed = hash_nonpk_cols_sha1_df(df_u_target, pk_cols_without_scd2, table, True)
-            df_u_dataset_hashed = hash_nonpk_cols_sha1_df(df_u_dataset, pk_cols_without_scd2, table, False)
             
             df_u_temp = pd.merge(df_u_dataset_hashed, df_u_target_hashed, how="inner", on=pk_cols_without_scd2)
             df_u_changed_rows = df_u_temp[df_u_temp["hashed_x"] != df_u_temp["hashed_y"]]
