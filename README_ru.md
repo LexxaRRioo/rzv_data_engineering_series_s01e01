@@ -90,7 +90,7 @@
 1. Сделай форк репозитория и склонируй на компьютер: ```git clone https://github.com/%Username%/rzv_de_series_s01e01.git``` .
 2. Установи Docker Desktop (проверено на 4.26.1 (131620)). Если ещё нет любимой IDE, поставь VS Code с расширением для Python.
 3. Открой репозиторй в VS Code, перейди в консоль ```Ctrl+` ``` и перейди в директорию ```deploy``` в выбранном грейде ```cd ./%Grade%/deploy```
-4. Подними сервисы ```docker compose up -d```. Airflow загружается около минуты.
+4. Подними сервисы ```docker compose up -d```. Airflow загружается около минуты. Если ранее уже деплоились другие грейды, и в текущем что-то не работает, запусти через ```docker compose up -d --build shop-1 shop-2```.
 5. Перейди на страницы сервисов с UI и залогинься
 * Airflow: ```localhost:8080``` ; airflow/airflow
 * pgAdmin4: ```localhost:80``` ; admin@admin.com/root

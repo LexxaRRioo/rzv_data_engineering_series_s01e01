@@ -92,7 +92,7 @@ I suggest studying the data schema on the sources directly from ```pgAdmin4``` a
 1. Fork the repository and clone it to your computer: ```git clone https://github.com/%Username%/rzv_de_series_s01e01.git``` .
 2. Install Docker Desktop (I've tested on 4.26.1 (131620)). If you don't have a favorite IDE yet, install VS Code with the Python extension.
 3. Open the repository in VS Code, go to the console ```Ctrl+` ``` and to the ```deploy``` directory in the selected grade ```cd ./%Grade%/deploy```
-4. Spin-up the services ```docker compose up -d```. Airflow takes about a minute to load.
+4. Spin-up the services ```docker compose up -d```. Airflow takes about a minute to load. In case if some functionality doesn't work, for example generator doesn't update data in Middle after Junior setup, rebuild images using  ```docker compose up -d --build shop-1 shop-2```.
 5. Go to the UI service pages and log in
 * Airflow: ```localhost:8080``` ; airflow/airflow
 * pgAdmin4: ```localhost:80``` ; admin@admin.com/root
