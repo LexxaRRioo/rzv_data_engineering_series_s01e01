@@ -88,6 +88,8 @@ You can view and change the current settings here: ```./deploy/env/shop-*.env```
 
 
 ### Database connectivity
+<a name="database-connectivity"></a>
+
 The options are in ```./deploy/env/```.
 In Airflow, it is recommended to use Admin - Connections to manage connections.
 
@@ -95,6 +97,8 @@ I suggest studying the data schema on the sources directly from ```pgAdmin4``` a
 
 
 ### Deploying infrastructure locally
+<a name="deploying-infrastructure-locally"></a>
+
 1. Fork the repository and clone it to your computer: ```git clone https://github.com/%Username%/rzv_de_series_s01e01.git``` .
 2. Install Docker Desktop (I've tested on 4.26.1 (131620)). If you don't have a favorite IDE yet, install VS Code with the Python extension.
 3. Open the repository in VS Code, go to the console ```Ctrl+` ``` and to the ```deploy``` directory in the selected grade ```cd ./%Grade%/deploy```
@@ -134,8 +138,8 @@ Aleksei Razvodov, Data engineer with 5+ years of experience in the industry. I s
 
 If this repository helped you and you liked it, give it a ⭐ and subscribe to the social networks.
 * [Mentor](https://razvodov-mentorship-de.notion.site/About-me-and-mentorship_ru-06510bfd4bbd4dcba93c351df0ff4a0e)
-* [Telegram channel author about Data Engineering](https://t.me/rzv_de)
-* [LinkedIn author about Data Engineering](https://www.linkedin.com/in/razvodov-alexey/)
+* [Telegram channel about Data Engineering](https://t.me/rzv_de)
+* [LinkedIn about Data Engineering](https://www.linkedin.com/in/razvodov-alexey/)
 * [CV](https://docs.google.com/document/d/1tYi0s7yNsGl_Xts5CrHDegLvAtlHtz7jPSp074MfCyI/edit?usp=sharing)
 * [Contact me](https://t.me/razvodov_de_mentor)
 
