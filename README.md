@@ -18,6 +18,12 @@ The further along the course, the more modules will be attached following the �
 
 p.s. Check the translated readme.md versions in the root of main directories: [\[ru\] is available](README_ru.md).
 
+## 🥱 TL;DR
+1. Fork the repo and clone it to the pc/mac
+2. Install docker desktop
+3. Follow the steps in [database connectivity](#database-connectivity) and [infrastracture setup](#deploying-infrastructure-locally)
+4. Choose G0_Trainee to run the code and see how it works. Get through grades from G1 to G3 to master data ingestion with Airflow
+
 ## 🎬 What's on TV today
 This is the first episode covering the features of incremental loading through Apache Airflow. In the process of performing tasks at the Middle and Senior level, you will encounter many difficulties that exist in real work practice. At the same time, even Junior and Intern tasks will introduce you to new concepts and gradually prepare you for more complex tasks.
 
@@ -43,7 +49,7 @@ You will learn:
 ## 👨🏻‍🦲 👦🏻 🧔🏻 Scenarios and grades
 Each level has its own directory. With each level I reduce the amount of ready-to-run code and raise the task's complexity. The contents of the directories are slightly different, but the infrastructure is ready for use everywhere. Detailed tasks are described in ```README.md``` of each grade. Choose yours and feel free to lower the level if necessary.
 
-**Trainee**: All code has already been implemented for the middle grade problem. Just launch and explore it.
+**Trainee**: All code has already been implemented for the middle grade problem. Just launch and explore it. Also you can find notes explaining why I've implemented the solution this way.
 
 **Intern**: Extend the existing configuration so that the written DAG starts loading data from a new source and new tables. Write a simple dag for working with the file system to clean-up temporary files using BashOperator.
 
@@ -54,7 +60,7 @@ Each level has its own directory. With each level I reduce the amount of ready-t
 **Senior**: Assignment as for Middle + setup Write-Audit-Publish pattern to ensure data quality and conduct load testing of the written solution.
 
 
-## Technical details below the dropdown
+## Technical details are inside the dropdown (open and follow the steps)
 
 
 <details>

@@ -1,3 +1,7 @@
+# Scenario
+
+There's nothing to change, just run and enjoy.
+
 # Solution
 
 Here everything has already been done up to the middle level, run it and it will work.
