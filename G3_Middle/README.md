@@ -13,8 +13,8 @@ Set up logging.
 * Filter the data, reducing as much as possible the number of rows in the dataset for the next download.
 * Add technical fields to track the source, time of creation and/or update of data. Use them to provide SCD2.
 * To update eff_to_dttm changed rows, it is convenient to use UPDATE TABLE SET ... FROM.
-* Use ```generator_app_data/logs``` or ```docker logs shop-1 -f``` to track changed rows and check the result by searching for records where PK are not unique (a third field is added to the PK -- ```eff_from_dttm```).
-* Use ```../G1_Intern/airflow_data/dags/scripts/self-test.sql``` for self-testing.
+* Use `generator_app_data/logs` or `docker logs shop-1 -f` to track changed rows and check the result by searching for records where PK are not unique (a third field is added to the PK -- `eff_from_dttm`).
+* Use `../G1_Intern/airflow_data/dags/scripts/self-test.sql` for self-testing.
 </details>
 <br>
 

@@ -33,7 +33,7 @@ You will learn:
 * incremental data loading using Airflow
 * basic ETL via Pandas
 * work with relational databases via SQL and Python
-* setting up connections to sources in Airflow and pgAdmin4
+* setting up connections to sources in Airflow and dbeaver
 * running applications in containers via Docker Compose
 
 ## 🎞️ Cast
@@ -43,11 +43,11 @@ You will learn:
 * Postgres 15 (DWH)
 * Pandas 2.1.4 (ETL)
 * Apache Airflow 2.7.3 (Orchestrator)
-* pgAdmin4 (DBMS client)
+* dbeaver (DBMS client)
 * Docker
 
 ## 👨🏻‍🦲 👦🏻 🧔🏻 Scenarios and grades
-Each level has its own directory. With each level I reduce the amount of ready-to-run code and raise the task's complexity. The contents of the directories are slightly different, but the infrastructure is ready for use everywhere. Detailed tasks are described in ```README.md``` of each grade. Choose yours and feel free to lower the level if necessary.
+Each level has its own directory. With each level I reduce the amount of ready-to-run code and raise the task's complexity. The contents of the directories are slightly different, but the infrastructure is ready for use everywhere. Detailed tasks are described in `README.md` of each grade. Choose yours and feel free to lower the level if necessary.
 
 **Trainee**: All code has already been implemented for the middle grade problem. Just launch and explore it. Also you can find notes explaining why I've implemented the solution this way.
 
@@ -75,9 +75,13 @@ Completely local infrastructure with everything you need:
 ![Local infrastracture with all you've need](./images/image-5.png)
 
 
-## 🚧 Identified but not yet resolved problems
-* Episode requires 5-7 GB RAM for simultaneous operation of the entire infrastructure on Win and Mac (docker desktop is heavy + many services run). [It is recommended to increase virtual RAM/swap file](https://www.windowscentral.com/how-change-virtual-memory-size-windows-10).
-* Each time after ```docker compose up``` airflow is re-initialized. The dags are saved, but ```Connections``` and ```Variables``` need to be filled-in again.
+## 🚧 Identified but not yet resolved issues
+* CloudBeaver loses authentication, go first on `localhost:80/#/admin`, log in, then go back to the main page `localhost/#/`
+
+
+## 🎉 Resolved issues
+* [1.1.0] Episode requires 5-7 GB RAM for simultaneous operation of the entire infrastructure on Win and Mac (docker desktop is heavy + many services run). [It is recommended to increase virtual RAM/swap file](https://www.windowscentral.com/how-change-virtual-memory-size-windows-10).
+* [1.1.0] Each time after `docker compose up` airflow is re-initialized. The dags are saved, but `Connections` and `Variables` need to be filled-in again.
 
 
 ## 👷🏻 About the author

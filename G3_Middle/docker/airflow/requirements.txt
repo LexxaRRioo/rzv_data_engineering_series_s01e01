@@ -1,3 +1,0 @@
-apache-airflow-providers-postgres==5.10
-pandas==2.1.4
-pendulum==2.1.2

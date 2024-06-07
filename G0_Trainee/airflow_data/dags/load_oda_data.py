@@ -1,4 +1,4 @@
-""" This dag loads incremental data from staging layer to the oda. """
+""" This dag loads incremental data from staging layer to the dds. """
 
 import pandas as pd
 import logging
@@ -12,7 +12,7 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-from utils import CONFIG, TARGET_CONN_ID, TARGET_HOOK, check_if_need_to_skip, get_ddl_from_conf, hash_nonpk_cols_sha1_df, get_filepath
+from utils import CONFIG, TARGET_CONN_ID, TARGET_HOOK, get_ddl_from_conf, hash_nonpk_cols_sha1_df, get_filepath
 
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] %(message)s',
@@ -26,7 +26,7 @@ default_args = {
     "retries": 1,
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
-    "tags": ["rzv_de", "oda"],
+    "tags": ["rzv_de", "dds"],
 }
 
 
@@ -61,7 +61,7 @@ def _prepare_update_sql(df:pd.DataFrame, table) -> str:
     sql = f"""with temp as (select * from (values 
                     {cte_update_values}
                     ) as tab ({", ".join(cols)}))
-update oda.{table} tgt
+update dds.{table} tgt
 set {scd2_columns[1][0]} = t.{tech_load_column[0]}::{tech_load_column[1]} - interval '1 second'
 from temp as t
 where {' and '.join(join_on_cols)} and tgt.{scd2_columns[1][0]} = '9999-12-31 23:59:59'::{scd2_columns[1][1]};
@@ -69,13 +69,13 @@ where {' and '.join(join_on_cols)} and tgt.{scd2_columns[1][0]} = '9999-12-31 23
     return sql
 
 
-@dag(default_args=default_args, description='ETL pipeline to load data from staging layer to oda layer', schedule_interval=None, catchup=False)
-def load_oda_data():
+@dag(default_args=default_args, description='ETL pipeline to load data from staging layer to dds layer', schedule=None, catchup=False, max_active_runs=1)
+def load_dds_data():
     
     @task()
     def prepare_tables():
         for table in CONFIG["tables"]:
-            sql = get_ddl_from_conf(table, 'oda')
+            sql = get_ddl_from_conf(table, 'dds')
             if sql: TARGET_HOOK.run(sql)
     
     
@@ -108,7 +108,7 @@ def load_oda_data():
         
         # Prepare to divide loaded part to pure increment (insert) and those where rows could be updated
         increment_col = CONFIG["tables"][table]["load_params"]["increment_col"]        
-        sql = f"""select max({increment_col}) from oda.{table};"""
+        sql = f"""select max({increment_col}) from dds.{table};"""
         logging.debug(sql)
         max_loaded_dttm = TARGET_HOOK.get_first(sql)[0]
         df_i = df.copy(deep=True)
@@ -132,7 +132,7 @@ def load_oda_data():
         filepath_u = None
         
         if max_loaded_dttm:
-            sql = f"""select * from oda.{table} 
+            sql = f"""select * from dds.{table} 
 where {increment_col} between '{max_loaded_dttm}'::timestamp - interval '330 seconds' and '{max_loaded_dttm}' 
 and {scd2_columns[1][0]} = '9999-12-31 23:59:59';"""
             logging.debug(sql)
@@ -159,7 +159,7 @@ and {scd2_columns[1][0]} = '9999-12-31 23:59:59';"""
                 df_u.to_csv(filepath_u, sep=';', header=True, index=False, mode="w", encoding="utf-8", errors="strict")
                 logging.info(f"Data is transformed (update) [{df_u.shape[0]} rows]: ready to load from stg.{table} table in {filepath}")
             else:
-                logging.info(f"There's no data to update in oda.{table} table from {filepath}")
+                logging.info(f"There's no data to update in dds.{table} table from {filepath}")
         
         return (filepath_i, filepath_u)
 
@@ -177,17 +177,17 @@ and {scd2_columns[1][0]} = '9999-12-31 23:59:59';"""
             sql = _prepare_update_sql(df_u, table)
             logging.debug(sql)
             TARGET_HOOK.run(sql)
-            logging.info(f"Old versions of rows from update part are updated [{df_u.shape[0]} rows]: into oda.{table} table from {filepaths[1]}")            
+            logging.info(f"Old versions of rows from update part are updated [{df_u.shape[0]} rows]: into dds.{table} table from {filepaths[1]}")            
             
             df_u.to_sql(table,
                 TARGET_HOOK.get_sqlalchemy_engine(),
-                schema='oda',
+                schema='dds',
                 chunksize=1000,
                 if_exists='append',
                 index=False)
-            logging.info(f"New versions of rows from update part are loaded [{df_u.shape[0]} rows]: into oda.{table} table from {filepaths[1]}")
+            logging.info(f"New versions of rows from update part are loaded [{df_u.shape[0]} rows]: into dds.{table} table from {filepaths[1]}")
         else:
-            logging.info(f"There's no data to update in oda.{table} table from {filepaths[1]}")
+            logging.info(f"There's no data to update in dds.{table} table from {filepaths[1]}")
             
         # Insert part
         if filepaths[0]:
@@ -195,24 +195,18 @@ and {scd2_columns[1][0]} = '9999-12-31 23:59:59';"""
             df_i[tech_load_column[0]] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
             df_i.to_sql(table,
                 TARGET_HOOK.get_sqlalchemy_engine(),
-                schema='oda',
+                schema='dds',
                 chunksize=1000,
                 if_exists='append',
                 index=False)
-            logging.info(f"Data is loaded [{df_i.shape[0]} rows]: into oda.{table} table from {filepaths[0]}")
+            logging.info(f"Data is loaded [{df_i.shape[0]} rows]: into dds.{table} table from {filepaths[0]}")
         else:
-            logging.info(f"There's no data to load into oda.{table} table from {filepaths[0]}")
-        
-
-    start_task = ShortCircuitOperator(
-        task_id='dummy_dag_start',
-        python_callable=check_if_need_to_skip
-    )
+            logging.info(f"There's no data to load into dds.{table} table from {filepaths[0]}")
     
     prepare_schema_task = PostgresOperator(
         task_id="prepare_schema",
         postgres_conn_id=TARGET_CONN_ID,
-        sql="""create schema if not exists oda;"""
+        sql="""create schema if not exists dds;"""
     )
     
     prepare_tables_task = prepare_tables()
@@ -227,6 +221,6 @@ and {scd2_columns[1][0]} = '9999-12-31 23:59:59';"""
             filepath_t = transform(filepath_e, table)
             load(filepath_t, table)
             
-        start_task >> prepare_schema_task >> prepare_tables_task >> etl_tg() >> end_task
+        prepare_schema_task >> prepare_tables_task >> etl_tg() >> end_task
 
-dag = load_oda_data()
+dag = load_dds_data()

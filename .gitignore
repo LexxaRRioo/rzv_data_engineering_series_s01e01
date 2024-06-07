@@ -6,9 +6,6 @@
 **/__pycache__/
 **/airflow_data/logs/*
 
-# pgAdmin
-**/pgadmin_data/
-
 # generator
 **/generator_app_data/logs/*
 !.gitkeep

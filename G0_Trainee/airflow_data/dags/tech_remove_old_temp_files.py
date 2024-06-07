@@ -18,7 +18,7 @@ default_args = {
 with DAG(
     'tech_remove_old_temp_files',
     default_args=default_args,
-    schedule_interval='0 */2 * * *',  # Run every 2 hours
+    schedule='0 */2 * * *',  # Run every 2 hours
     tags=["maintenance"]
 ) as dag:
 

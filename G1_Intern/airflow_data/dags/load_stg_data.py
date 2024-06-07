@@ -14,8 +14,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from psycopg2.errors import UndefinedTable
-from utils import CONFIG, TARGET_CONN_ID, TARGET_HOOK, \
-    check_if_need_to_skip, get_ddl_from_conf, get_filepath, get_columns
+from utils import CONFIG, TARGET_CONN_ID, TARGET_HOOK, get_ddl_from_conf, get_filepath, get_columns
 
 
 default_args = {
@@ -28,7 +27,7 @@ default_args = {
     "tags": ["rzv_de", "stg"],
 }
 
-@dag(default_args=default_args, description="ETL pipeline to load staging data from multiple sources", schedule_interval="*/3 * * * *", catchup=False)
+@dag(default_args=default_args, description="ETL pipeline to load staging data from multiple sources", schedule_interval="*/3 * * * *", catchup=False, max_active_runs=1)
 def load_staging_data():
     
     @task()
@@ -47,7 +46,7 @@ def load_staging_data():
         
         increment_col = CONFIG["tables"][table]["load_params"]["increment_col"]        
         try:
-            sql = f"""select max({increment_col}) from oda.{table};"""
+            sql = f"""select max({increment_col}) from dds.{table};"""
             max_loaded_dttm = TARGET_HOOK.get_first(sql)[0]
         except UndefinedTable:
             max_loaded_dttm = None
@@ -123,9 +122,9 @@ def load_staging_data():
     
     prepare_tables_task = prepare_tables()
 
-    trigger_load_oda_data = TriggerDagRunOperator(
-        task_id="trigger_load_oda_data",
-        trigger_dag_id="load_oda_data",
+    trigger_load_dds_data = TriggerDagRunOperator(
+        task_id="trigger_load_dds_data",
+        trigger_dag_id="load_dds_data",
         wait_for_completion=True,
         deferrable=True,
         retries=1
@@ -146,6 +145,6 @@ def load_staging_data():
 
                 inner_start_task >> etl_tg() >> inner_end_task
 
-        start_task >> prepare_schema_task >> prepare_tables_task >> conn_tg() >> end_task >> trigger_load_oda_data
+        prepare_schema_task >> prepare_tables_task >> conn_tg() >> end_task >> trigger_load_dds_data
 
 dag = load_staging_data()

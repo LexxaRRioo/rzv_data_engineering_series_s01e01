@@ -30,7 +30,7 @@ def get_columns(table:str, schema:str) -> list[str]:
         columns = [f"""{col} {root_table_config["columns"][col]}""" for col in root_table_config["columns"]]
         columns.extend([f"""{col} {root_table_config["tech_columns"][col]}""" for col in root_table_config["tech_columns"]])
         print(f"\n\n columns\n\n")
-        if schema == "oda":
+        if schema == "dds":
             is_scd2 = root_table_config["load_params"]["scd2"]
             scd2_columns = [pair for pair in root_table_config["load_params"]["scd2_columns"].items()]
             
@@ -67,27 +67,6 @@ def _check_if_table_exists(table:str, schema:str) -> bool:
     except UndefinedTable:
         
         return False
-    
-    
-def check_if_need_to_skip(**context):
-    """ Checks if there are no running instances of the dag; skip otherwise """
-
-    task = context['ti'].task
-    local_tz = pendulum.timezone('UTC')
-    exec_dt = local_tz.convert(context['execution_date'])
-    session = settings.Session()
-
-    dags = session.query(DR).filter(
-        DR.dag_id == task.dag_id,
-        DR.execution_date != exec_dt,
-        DR.state == State.RUNNING
-    )
-
-    dags = [d for d in dags]
-    if len(dags) > 0:
-        task.log.info(f"There are {len(dags)} running dags: {dags}")
-
-    return len(dags) == 0
 
 
 def hash_nonpk_cols_sha1_df(df: pd.DataFrame, table:str) -> pd.DataFrame:

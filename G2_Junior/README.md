@@ -22,4 +22,4 @@ Definition of done:
 * 3 tables from two sources are loaded into DWH.
 * The solution should be easily extensible for new tables and sources.
 * There are no duplicates or gaps in the tables, IDs increase monotonically.
-* Use ```airflow_data/dags/scripts/self-test.sql``` for self-testing.
+* Use `airflow_data/dags/scripts/self-test.sql` for self-testing.

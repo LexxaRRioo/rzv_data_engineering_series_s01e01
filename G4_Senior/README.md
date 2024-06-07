@@ -4,7 +4,7 @@ Configure incremental loading of all tables from all sources into historical DWH
 
 Set up logging and auto-tests, discard inconsistent data into an analogue of the dead letter queue, guided by the Write - Audit - Publish principle.
 
-By limiting docker compose af-scheduler to 4 cores 4GB RAM, conduct “load testing” and determine the maximum average throughput in rows in 10 minutes that the authored solution can ingest. Let's say that up to 60% of ```insert_rows_per_tick``` could be updated per tick. Use generator parameters to change the speed at which data appears at the source.
+By limiting docker compose af-standalone to 4 cores 4GB RAM, conduct “load testing” and determine the maximum average throughput in rows in 10 minutes that the authored solution can ingest. Let's say that up to 60% of `insert_rows_per_tick` could be updated per tick. Use generator parameters to change the speed at which data appears at the source.
 
 <details>
 <summary>Hints</summary>

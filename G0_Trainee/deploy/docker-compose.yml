@@ -1,19 +1,33 @@
 version: '3'
 # ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
-x-environment: &airflow_environment
-  - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-  - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
-  - AIRFLOW__CORE__LOAD_EXAMPLES=False
-  - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@pg-airflow:5432/airflow
-  - AIRFLOW__CORE__STORE_DAG_CODE=True
-  - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
-  - AIRFLOW__CORE__TEST_CONNECTION=Enabled
-  - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=5
-  - AIRFLOW__WEBSERVER__AUTH_BACKEND=airflow.contrib.auth.backends.password_auth
-  - AIRFLOW__WEBSERVER__AUTHENTICATE=True
-  - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
-  - AIRFLOW__WEBSERVER__LOGIN=airflow
-  - AIRFLOW__WEBSERVER__PASSWORD=airflow
+x-airflow-common:
+  &airflow-common
+  build:
+    context: ../docker/airflow
+    dockerfile: Dockerfile
+  environment: 
+    &airflow-common-env
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__CORE__STORE_DAG_CODE: 'true'
+    AIRFLOW__CORE__STORE_SERIALIZED_DAGS: 'true'
+    AIRFLOW__CORE__TEST_CONNECTION: Enabled
+    AIRFLOW__DATABASE__LOAD_DEFAULT_CONNECTIONS: 'false'
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@pg-airflow:5432/airflow
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 5
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+    AIRFLOW_UID: 50000
+  volumes:
+    - "../airflow_data/dags:/opt/airflow/dags:rw"
+    - "../airflow_data/logs:/opt/airflow/logs:rw"
+    - "../airflow_data/plugins:/opt/airflow/plugins:rw"
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    &airflow-common-depends-on
+      pg-airflow:
+        condition: service_started
 # ====================================== /AIRFLOW ENVIRONMENT VARIABLES ======================================
 services:
   pg-airflow:
@@ -28,70 +42,66 @@ services:
     networks:
       - network-af
 
-  af-init:
-    build:
-      context: ../docker/airflow
-      dockerfile: Dockerfile
-    container_name: af-init
-    depends_on:
-      - pg-airflow
-    environment: *airflow_environment
-    entrypoint: /bin/bash
-    command: -c 'airflow db migrate && airflow users create --username airflow --password airflow --firstname airflow --lastname airflow --role Admin --email airflow@example.org'
-    networks:
-      - network-af
-  
-  af-webserver:
-    build:
-      context: ../docker/airflow
-      dockerfile: Dockerfile
-    restart: always
-    container_name: af-webserver
-    depends_on:
-      - pg-airflow
+  af-standalone:
+    <<: *airflow-common
+    restart: unless-stopped
+    container_name: af-standalone
     ports:
       - "8080:8080"
-    volumes:
-      - "../airflow_data/logs:/opt/airflow/logs:rw"
-    environment: *airflow_environment
-    command: "webserver -p 8080"
+    # command: standalone
+    command: 
+      - airflow standalone
+    mem_reservation: "1G"
+    mem_limit: "2G"
+    depends_on:
+      <<: *airflow-common-depends-on
+      af-init:
+        condition: service_completed_successfully
     networks:
       - network-af
+      - network-dwh
       - network-1
       - network-2
-      - network-dwh
 
-  af-triggerer:
-    build:
-      context: ../docker/airflow
-      dockerfile: Dockerfile
-    restart: always
-    container_name: af-triggerer
-    depends_on:
-      - pg-airflow
-    volumes:
-      - "../airflow_data/dags:/opt/airflow/dags:rw"
-      - "../airflow_data/logs:/opt/airflow/logs:rw"
-      - "../airflow_data/plugins:/opt/airflow/plugins:rw"
-    environment: *airflow_environment
-    command: triggerer
-    networks:
-      - network-af
-
-  af-scheduler:
-    build:
-      context: ../docker/airflow
-      dockerfile: Dockerfile
-    restart: always
-    container_name: af-scheduler
-    depends_on:
-      - pg-airflow
-    volumes:
-      - "../airflow_data/dags:/opt/airflow/dags:rw"
-      - "../airflow_data/logs:/opt/airflow/logs:rw"
-      - "../airflow_data/plugins:/opt/airflow/plugins:rw"
-    environment: *airflow_environment
-    command: scheduler
+  af-init:
+    <<: *airflow-common
+    command:
+      - |
+        airflow db init
+        airflow db migrate
+        airflow users create \
+          -e airflow@example.com \
+          -f airflow \
+          -l airflow \
+          -r Admin \
+          -u airflow \
+          -p airflow
+        airflow connections delete 'dwh_conn' || true
+        airflow connections add 'dwh_conn' \
+          --conn-type 'postgres' \
+          --conn-login 'postgres' \
+          --conn-password 'password' \
+          --conn-host 'pg-dwh' \
+          --conn-port '5432' \
+          --conn-schema 'postgres'
+        airflow connections delete 'shop_1_conn' || true
+        airflow connections add 'shop_1_conn' \
+          --conn-type 'postgres' \
+          --conn-login 'dwh-tech' \
+          --conn-password 'Hhdsyt768sxD&^$' \
+          --conn-host 'pg-shop-1' \
+          --conn-port '5432' \
+          --conn-schema 'postgres'
+        airflow connections delete 'shop_2_conn' || true
+        airflow connections add 'shop_2_conn' \
+          --conn-type 'postgres' \
+          --conn-login 'edwh-tech' \
+          --conn-password 'jhdaE*dASD(U' \
+          --conn-host 'pg-shop-2' \
+          --conn-port '5432' \
+          --conn-schema 'postgres'
+        airflow variables import -a overwrite /opt/airflow/dags/scripts/airflow_variable.json
+    user: "0:0"
     networks:
       - network-af
       - network-dwh
@@ -100,6 +110,7 @@ services:
 
   pg-dwh:
     image: postgres:15-alpine
+    restart: unless-stopped
     env_file:
       - env/dwh.env
     container_name: pg-dwh
@@ -110,15 +121,18 @@ services:
     networks:
       - network-dwh
 
-  pgadmin:
-    image: dpage/pgadmin4:8.2
+  dbeaver:
+    image: dbeaver/cloudbeaver:24.1.0
+    restart: unless-stopped
     env_file:
       - env/dwh.env
-    container_name: pgadmin
+    container_name: dbeaver
     volumes:
-      - "../pgadmin_data:/var/lib/pgadmin:rw"
+      - "cloudbeaver:/opt/cloudbeaver/workspace:rw"
     ports:
-      - "80:80"
+      - "80:8978"
+    mem_reservation: "300M"
+    mem_limit: "700M"
     networks:
       - network-af
       - network-dwh
@@ -127,6 +141,7 @@ services:
 
   pg-shop-1:
     image: postgres:15-alpine
+    restart: unless-stopped
     container_name: pg-shop-1
     env_file:
       - ./env/shop-1.env
@@ -146,11 +161,14 @@ services:
       - "../generator_app_data/logs/shop-1:/app/logs:rw"
     networks:
       - network-1
+    mem_reservation: "10M"
+    mem_limit: "50M"
     depends_on:
       - pg-shop-1
       
   pg-shop-2:
     image: postgres:15-alpine
+    restart: unless-stopped
     container_name: pg-shop-2
     env_file:
       - ./env/shop-2.env
@@ -170,6 +188,8 @@ services:
       - "../generator_app_data/logs/shop-2:/app/logs:rw"
     networks:
       - network-2
+    mem_reservation: "10M"
+    mem_limit: "50M"
     depends_on:
       - pg-shop-2
 
@@ -182,3 +202,6 @@ networks:
     name: network-dwh
   network-af:
     name: network-af
+
+volumes:
+  cloudbeaver:

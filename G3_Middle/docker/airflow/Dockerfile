@@ -1,4 +1,4 @@
-FROM apache/airflow:slim-2.7.3-python3.10
+FROM apache/airflow:slim-2.9.1-python3.12
 
 COPY requirements.txt /requirements.txt
 
@@ -11,4 +11,4 @@ RUN apt-get update && apt-get install -y \
 
 USER airflow
 
-# ENTRYPOINT [ "/bin/bash", "airflow"]
+ENTRYPOINT [ "/bin/bash", "-c" ]
