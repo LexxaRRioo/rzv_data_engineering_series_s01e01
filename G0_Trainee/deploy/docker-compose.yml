@@ -15,8 +15,7 @@ x-airflow-common:
     AIRFLOW__CORE__TEST_CONNECTION: Enabled
     AIRFLOW__DATABASE__LOAD_DEFAULT_CONNECTIONS: 'false'
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@pg-airflow:5432/airflow
-    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 5
-    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 10
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
     AIRFLOW_UID: 50000
   volumes:
@@ -37,6 +36,8 @@ services:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
+    volumes:
+      - ../airflow_data/db:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:

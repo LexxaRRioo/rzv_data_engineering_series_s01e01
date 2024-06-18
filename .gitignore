@@ -5,6 +5,7 @@
 # Airflow
 **/__pycache__/
 **/airflow_data/logs/*
+**/airflow_data/db
 
 # generator
 **/generator_app_data/logs/*

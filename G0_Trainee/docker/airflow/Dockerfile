@@ -1,4 +1,4 @@
-FROM apache/airflow:slim-2.9.1-python3.12
+FROM apache/airflow:slim-2.9.2-python3.12
 
 COPY requirements.txt /requirements.txt
 
