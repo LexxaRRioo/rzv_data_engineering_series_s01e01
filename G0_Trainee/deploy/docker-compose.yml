@@ -20,8 +20,8 @@ x-airflow-common:
     AIRFLOW_UID: 50000
   volumes:
     - "../airflow_data/dags:/opt/airflow/dags:rw"
-    - "../airflow_data/logs:/opt/airflow/logs:rw"
     - "../airflow_data/plugins:/opt/airflow/plugins:rw"
+    - "airflow_data_logs_g0:/opt/airflow/logs:rw"
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -193,3 +193,4 @@ networks:
 volumes:
   cloudbeaver:
   airflow_data_g0:
+  airflow_data_logs_g0:
