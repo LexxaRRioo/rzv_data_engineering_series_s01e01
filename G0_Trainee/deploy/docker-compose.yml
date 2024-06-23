@@ -37,7 +37,7 @@ services:
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
     volumes:
-      - "../airflow_data/db:/var/lib/postgresql/data:rw"
+      - "airflow_data_g0:/var/lib/postgresql/data:rw"
     ports:
       - "5432:5432"
     networks:
@@ -51,22 +51,6 @@ services:
       - "8080:8080"
     # command: standalone
     command: 
-      - airflow standalone
-    mem_reservation: "1G"
-    mem_limit: "2G"
-    depends_on:
-      <<: *airflow-common-depends-on
-      af-init:
-        condition: service_completed_successfully
-    networks:
-      - network-af
-      - network-dwh
-      - network-1
-      - network-2
-
-  af-init:
-    <<: *airflow-common
-    command:
       - |
         airflow db init
         airflow db migrate
@@ -102,7 +86,9 @@ services:
           --conn-port '5432' \
           --conn-schema 'postgres'
         airflow variables import -a overwrite /opt/airflow/dags/scripts/airflow_variable.json
-    user: "0:0"
+        airflow standalone
+    mem_reservation: "2G"
+    mem_limit: "3G"
     networks:
       - network-af
       - network-dwh
@@ -206,3 +192,4 @@ networks:
 
 volumes:
   cloudbeaver:
+  airflow_data_g0:
