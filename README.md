@@ -39,10 +39,10 @@ You will learn:
 ## 🎞️ Cast
 ![Stack used](./images/image-6.png)
 
-* Python 3.10
+* Python 3.12
 * Postgres 15 (DWH)
 * Pandas 2.1.4 (ETL)
-* Apache Airflow 2.7.3 (Orchestrator)
+* Apache Airflow 2.9.2(Orchestrator)
 * dbeaver (DBMS client)
 * Docker
 
@@ -80,6 +80,7 @@ Completely local infrastructure with everything you need:
 
 
 ## 🎉 Resolved issues
+* [1.1.1] Moved logs from bind mount to volume which should fix "dags aren't shown in the UI" for some users. Also increased memory reservation for airflow to 2..3 GB.
 * [1.1.0] Episode requires 5-7 GB RAM for simultaneous operation of the entire infrastructure on Win and Mac (docker desktop is heavy + many services run). [It is recommended to increase virtual RAM/swap file](https://www.windowscentral.com/how-change-virtual-memory-size-windows-10).
 * [1.1.0] Each time after `docker compose up` airflow is re-initialized. The dags are saved, but `Connections` and `Variables` need to be filled-in again.
 
