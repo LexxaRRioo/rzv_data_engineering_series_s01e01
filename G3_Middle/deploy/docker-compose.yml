@@ -1,4 +1,3 @@
-version: '3'
 # ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
 x-airflow-common:
   &airflow-common
@@ -16,13 +15,12 @@ x-airflow-common:
     AIRFLOW__DATABASE__LOAD_DEFAULT_CONNECTIONS: 'false'
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@pg-airflow:5432/airflow
     AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 5
-    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
     AIRFLOW_UID: 50000
   volumes:
     - "../airflow_data/dags:/opt/airflow/dags:rw"
-    - "../airflow_data/logs:/opt/airflow/logs:rw"
     - "../airflow_data/plugins:/opt/airflow/plugins:rw"
+    - "airflow_data_logs_g3:/opt/airflow/logs:rw"
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -37,12 +35,12 @@ services:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
+    volumes:
+      - "airflow_data_g3:/var/lib/postgresql/data:rw"
     ports:
       - "5432:5432"
     networks:
       - network-af
-
-
 
   af-standalone:
     <<: *airflow-common
@@ -50,24 +48,7 @@ services:
     container_name: af-standalone
     ports:
       - "8080:8080"
-    # command: standalone
     command: 
-      - airflow standalone
-    mem_reservation: "1G"
-    mem_limit: "2G"
-    depends_on:
-      <<: *airflow-common-depends-on
-      af-init:
-        condition: service_completed_successfully
-    networks:
-      - network-af
-      - network-dwh
-      - network-1
-      - network-2
-
-  af-init:
-    <<: *airflow-common
-    command:
       - |
         airflow db init
         airflow db migrate
@@ -103,7 +84,9 @@ services:
         #   --conn-port '5432' \
         #   --conn-schema 'postgres'
         # airflow variables import -a overwrite /opt/airflow/dags/scripts/airflow_variable.json
-    user: "0:0"
+        airflow standalone
+    mem_reservation: "2G"
+    mem_limit: "3G"
     networks:
       - network-af
       - network-dwh
@@ -207,3 +190,5 @@ networks:
 
 volumes:
   cloudbeaver:
+  airflow_data_g3:
+  airflow_data_logs_g3:

@@ -1,4 +1,3 @@
-version: '3'
 # ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
 x-airflow-common:
   &airflow-common
@@ -15,7 +14,7 @@ x-airflow-common:
     AIRFLOW__CORE__TEST_CONNECTION: Enabled
     AIRFLOW__DATABASE__LOAD_DEFAULT_CONNECTIONS: 'false'
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql://airflow:airflow@pg-airflow:5432/airflow
-    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 10
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 5
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
     AIRFLOW_UID: 50000
   volumes:
@@ -49,7 +48,6 @@ services:
     container_name: af-standalone
     ports:
       - "8080:8080"
-    # command: standalone
     command: 
       - |
         airflow db init
