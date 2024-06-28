@@ -115,7 +115,7 @@ services:
     volumes:
       - "cloudbeaver:/opt/cloudbeaver/workspace:rw"
     ports:
-      - "80:8978"
+      - "81:8978"
     mem_reservation: "300M"
     mem_limit: "700M"
     networks:
