@@ -57,8 +57,10 @@ def load_staging_data():
         """Selects increment of data from the source table and saves it to the csv file. Returns filepath."""
 
         increment_col = CONFIG["tables"][table]["load_params"]["increment_col"]
+        src_id = CONFIG["source_conn_ids"][conn_id]["city_name"]
+
         try:
-            sql = f"""select max({increment_col}) from dds.{table};"""
+            sql = f"""select max({increment_col}) from dds.{table} where src_id = '{src_id}';"""
             max_loaded_dttm = TARGET_HOOK.get_first(sql)[0]
         except UndefinedTable:
             max_loaded_dttm = None
