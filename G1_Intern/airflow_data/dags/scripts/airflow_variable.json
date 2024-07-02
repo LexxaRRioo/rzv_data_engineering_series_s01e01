@@ -35,14 +35,83 @@
                 "tech_load_column": {
                     "ingested_at": "timestamp"
                 }
+            },
+            "orders": {
+                "columns": {
+                    "order_id": "int",
+                    "customer_id": "int",
+                    "product_id": "int",
+                    "order_status": "varchar",
+                    "order_dttm": "timestamp",
+                    "quantity": "float",
+                    "created_at": "timestamp"
+                },
+                "load_params": {
+                    "type": "increment",
+                    "increment_col": "created_at",
+                    "scd2": true,
+                    "scd2_columns": {
+                        "eff_from_dttm": "timestamp",
+                        "eff_to_dttm": "timestamp"
+                    }
+                },
+                "tech_columns": {
+                    "src_id": "varchar",
+                    "dag_run_id": "varchar",
+                    "ingested_at": "timestamp"
+                },
+                "pk_cols_without_scd2": [
+                    "order_id",
+                    "src_id"
+                ],
+                "tech_load_column": {
+                    "ingested_at": "timestamp"
+                }
+            },
+            "products": {
+                "columns": {
+                    "product_id": "int",
+                    "ssn": "varchar",
+                    "name": "varchar",
+                    "price": "int",
+                    "currency": "varchar",
+                    "created_at": "timestamp"
+                },
+                "load_params": {
+                    "type": "increment",
+                    "increment_col": "created_at",
+                    "scd2": true,
+                    "scd2_columns": {
+                        "eff_from_dttm": "timestamp",
+                        "eff_to_dttm": "timestamp"
+                    }
+                },
+                "tech_columns": {
+                    "src_id": "varchar",
+                    "dag_run_id": "varchar",
+                    "ingested_at": "timestamp"
+                },
+                "pk_cols_without_scd2": [
+                    "product_id",
+                    "src_id"
+                ],
+                "tech_load_column": {
+                    "ingested_at": "timestamp"
+                }
             }
         },
         "source_conn_ids": {
             "shop_1_conn": {
                 "tables": [
-                    "customers"
+                    "customers", "orders", "products"
                 ],
                 "city_name": "New-York"
+            },
+            "shop_2_conn": {
+                "tables": [
+                    "customers", "orders", "products"
+                ],
+                "city_name": "Istanbul"
             }
         }
     }
